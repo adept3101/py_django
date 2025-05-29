@@ -76,7 +76,7 @@ WSGI_APPLICATION = 'prdip.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'db3',
+        'NAME': 'db',
         'USER': 'postgres',
         'PASSWORD': '3101',
         'HOST': 'localhost',
@@ -127,5 +127,7 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/auth/login/'
+#LOGIN_URL = '/registration/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/auth/login/'
+#LOGOUT_REDIRECT_URL = '/registration/login/'
