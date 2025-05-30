@@ -26,5 +26,6 @@ urlpatterns = [
     path('auth/', include('django.contrib.auth.urls')),
     #path('registration/', include('django.contrib.auth.urls')), # Оказывается Django по умолчанию ищет registration
     #path('', user_views.home, name='main'),
+    path('logout/', user_views.logout_view, name='logout'),
     path('', user_views.unified_feeds_view, name='main'),
 ]

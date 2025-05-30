@@ -3,11 +3,15 @@ from django.shortcuts import render, redirect
 from .models import *
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
 
 # @login_required
 # def home(request):
 #     return render(request, 'users/unified_view.html')
 #     #return redirect('unified-feeds')
+def logout_view(request):
+    logout(request)
+    return redirect('login')
 
 @login_required # edit
 def unified_feeds_view(request):
