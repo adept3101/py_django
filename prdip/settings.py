@@ -76,7 +76,7 @@ WSGI_APPLICATION = 'prdip.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'db',
+        'NAME': 'db3',
         'USER': 'postgres',
         'PASSWORD': '3101',
         'HOST': 'localhost',
