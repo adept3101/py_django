@@ -21,11 +21,8 @@ from users import views as user_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    #path('auth/', include('users.urls')),
-    #path('', lambda request: redirect('login')),
     path('auth/', include('django.contrib.auth.urls')),
-    #path('registration/', include('django.contrib.auth.urls')), # Оказывается Django по умолчанию ищет registration
-    #path('', user_views.home, name='main'),
     path('logout/', user_views.logout_view, name='logout'),
+    path('register/', user_views.register_view, name='register'),
     path('', user_views.unified_feeds_view, name='main'),
 ]

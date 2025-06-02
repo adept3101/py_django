@@ -4,13 +4,33 @@ from .models import *
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout, login, authenticate
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib import messages
+from django.contrib.auth.models import User
 
-# @login_required
-# def home(request):
-#     return render(request, 'users/unified_view.html')
-#     #return redirect('unified-feeds')
+
+def register_view(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            
+            is_superuser = request.POST.get('is_superuser', False)
+            if is_superuser:
+                if not User.objects.filter(is_superuser=True).exists():
+                    user.is_superuser = True
+                    user.is_staff = True
+                else:
+                    # Можно добавить сообщение об ошибке
+                    pass
+            
+            user.save()
+            login(request, user)
+            return redirect('users/login.html')
+    else:
+        form = UserCreationForm()
+    
+    return render(request, 'registration/register.html', {'form': form})
 
 def login_view(request):
     if request.method == 'POST':
