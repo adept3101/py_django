@@ -1,108 +1,203 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация</title>
+    <meta charset="utf-8">
+    <title>Register</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #f8f9fc;
+            --accent-color: #2e59d9;
+        }
+        
         body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--secondary-color);
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             height: 100vh;
             display: flex;
             align-items: center;
         }
         
-        .register-container {
-            max-width: 500px;
+        .register-card {
+            max-width: 400px;
             width: 100%;
-            margin: 0 auto;
-            padding: 2rem;
-            background: white;
+            border: none;
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            overflow: hidden;
         }
         
-        .register-header {
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
             text-align: center;
-            margin-bottom: 2rem;
-            color: #333;
+            padding: 1.5rem;
+            border-bottom: none;
+        }
+        
+        .card-body {
+            padding: 2rem;
+            background-color: white;
         }
         
         .form-control {
             padding: 0.75rem 1rem;
-            margin-bottom: 1rem;
+            border-radius: 0.35rem;
+            border: 1px solid #d1d3e2;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
         }
         
         .btn-register {
-            background-color: #4e73df;
+            background-color: var(--primary-color);
             border: none;
             padding: 0.75rem;
             font-weight: 600;
-            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 0.05rem;
         }
         
         .btn-register:hover {
-            background-color: #2e59d9;
+            background-color: var(--accent-color);
         }
         
-        .login-link {
+        .input-group-text {
+            background-color: #f8f9fc;
+            border: 1px solid #d1d3e2;
+            color: #6e707e;
+        }
+        
+        .divider {
+            position: relative;
             text-align: center;
-            margin-top: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .divider:before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: #e3e6f0;
+            z-index: -1;
+        }
+        
+        .divider-text {
+            display: inline-block;
+            background-color: white;
+            padding: 0 1rem;
+            color: #b7b9cc;
+            font-size: 0.8rem;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="register-container">
-            <div class="register-header">
-                <h3><i class="fas fa-user-plus me-2"></i>Создать аккаунт</h3>
-            </div>
-            
-            {% if form.errors %}
-                <div class="alert alert-danger">
-                    {% for field in form %}
-                        {% for error in field.errors %}
-                            <div>{{ error }}</div>
-                        {% endfor %}
-                    {% endfor %}
-                    {% for error in form.non_field_errors %}
-                        <div>{{ error }}</div>
-                    {% endfor %}
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card register-card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-user-plus me-2"></i>Create Account</h4>
+                    </div>
+                    <div class="card-body">
+                        {% if form.errors %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endif %}
+
+                        <form method="post" action="{% url 'register' %}" class="needs-validation" novalidate>
+                            {% csrf_token %}
+                            
+                            <div class="mb-4">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <input type="text" 
+                                           name="{{ form.username.name }}" 
+                                           class="form-control" 
+                                           placeholder="Username" 
+                                           required
+                                           value="{% if form.username.value %}{{ form.username.value }}{% endif %}">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                    <input type="password" 
+                                           name="{{ form.password1.name }}" 
+                                           class="form-control" 
+                                           placeholder="Password" 
+                                           required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                    <input type="password" 
+                                           name="{{ form.password2.name }}" 
+                                           class="form-control" 
+                                           placeholder="Confirm Password" 
+                                           required>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-primary btn-register btn-block">
+                                    <i class="fas fa-user-plus me-2"></i>Register
+                                </button>
+                            </div>
+                            
+                            <div class="text-center">
+                                <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            {% endif %}
-            
-            <form method="post" action="{% url 'register' %}">
-                {% csrf_token %}
-                
-                <div class="mb-3">
-                    <label for="{{ form.username.id_for_label }}" class="form-label">Имя пользователя</label>
-                    {{ form.username }}
-                </div>
-                
-                <div class="mb-3">
-                    <label for="{{ form.password1.id_for_label }}" class="form-label">Пароль</label>
-                    {{ form.password1 }}
-                </div>
-                
-                <div class="mb-3">
-                    <label for="{{ form.password2.id_for_label }}" class="form-label">Подтверждение пароля</label>
-                    {{ form.password2 }}
-                </div>
-                
-                <button type="submit" class="btn btn-primary btn-register">
-                    <i class="fas fa-user-plus me-2"></i>Зарегистрироваться
-                </button>
-            </form>
-            
-            <div class="login-link">
-                Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Example starter JavaScript for disabling form submissions if there are invalid fields
+        (function () {
+            'use strict'
+            
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.querySelectorAll('.needs-validation')
+            
+            // Loop over them and prevent submission
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
 </body>
 </html>
