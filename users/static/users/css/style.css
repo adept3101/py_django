@@ -1,0 +1,49 @@
+/* Стили для пагинации под таблицей */
+.table-pagination {
+    display: flex;
+    justify-content: flex-end;  /* вместо center */
+    padding: 10px;
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+.table-pagination .pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.table-pagination .page-item .page-link {
+    position: relative;
+    display: block;
+    padding: 0.5rem 0.75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: #0d6efd;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+}
+
+.table-pagination .page-item.active .page-link {
+    z-index: 3;
+    color: #fff;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.table-pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+.table-wrapper {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.table-responsive {
+    margin-bottom: 0;
+}
