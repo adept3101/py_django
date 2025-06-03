@@ -124,3 +124,7 @@ class FinCertIocDateProcessing(models.Model):
     dateMailing = models.CharField("Дата рассылки IOC", max_length=30)
     date = models.CharField('Время скачивания фидов',max_length=30, null=True, blank=True)
     iocTrim = models.CharField('Индентификатор IOC',max_length=50)
+    
+# class IB(models.Model):
+#     class Meta:
+#         permissions =((""))

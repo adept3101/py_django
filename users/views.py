@@ -21,7 +21,6 @@ def register_view(request):
                     user.is_superuser = True
                     user.is_staff = True
                 else:
-                    # Можно добавить сообщение об ошибке
                     pass
             
             user.save()
