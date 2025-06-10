@@ -75,20 +75,29 @@
 
         <!-- Навигационные табы -->
         <ul class="nav nav-tabs" id="feedsTabs" role="tablist">
+            {%if user.role == 'admin'%}
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="fincert-tab" data-bs-toggle="tab" data-bs-target="#fincert" type="button" role="tab">ФинЦерт</button>
             </li>
+            {% endif %}
+
+            {%if user.role == 'analyst'%}
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="mvd-tab" data-bs-toggle="tab" data-bs-target="#mvd" type="button" role="tab">МВД</button>
             </li>
+            {% endif %}
+
+            {%if user.role == 'analyst'%}
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="ioc-tab" data-bs-toggle="tab" data-bs-target="#ioc" type="button" role="tab">IOC</button>
             </li>
+            {% endif %}
         </ul>
 
         <!-- Содержимое табов -->
         <div class="tab-content" id="feedsTabsContent">
             <!-- Вкладка ФинЦерт -->
+             {% if user.role == 'admin' %}
             <div class="tab-pane fade show active" id="fincert" role="tabpanel">
                 <h3 class="section-title">Последние загрузки ФинЦерт</h3>
                 <div class="table-responsive">
@@ -426,8 +435,10 @@
 
                 </div>
             </div>
+            <!--{% endif %}-->
 
             <!-- Вкладка МВД -->
+            <!--{% if 'mvd' in tabs%}-->
             <div class="tab-pane fade" id="mvd" role="tabpanel">
                 <h3 class="section-title">Последние загрузки МВД</h3>
                 <div class="table-responsive">
@@ -448,6 +459,7 @@
                         </tbody>
                     </table>
                 </div>
+            
 
 <!-- Табы для данных МВД -->
 <ul class="nav nav-tabs mt-4" id="mvdDataTabs" role="tablist">
@@ -589,10 +601,12 @@
     </div>
             </div>
         </div>
+        <!--{% endif %}-->
 
 
 
             <!-- Вкладка IOC -->
+            <!-- {% if 'ioc' in tabs %} -->
             <div class="tab-pane fade" id="ioc" role="tabpanel">
                 <h3 class="section-title">Обработка IOC</h3>
                 <div class="table-responsive">
@@ -618,6 +632,7 @@
                     </table>
                 </div>
             </div>
+            <!--{% endif %} -->
         </div>
 
 

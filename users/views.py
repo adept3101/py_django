@@ -7,6 +7,17 @@ from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib import messages
 from django.contrib.auth.models import User
+from .permissions import RolePermission
+from django.http import HttpResponseForbidden
+
+# def list(request):
+#     allowed_tabs = {
+#         'admin': ['fincert', 'mvd', 'ioc'],
+#         'analyst': ['fincert','mvd', 'ioc'],
+#         'network_admin': ['ioc'],
+#     }
+#     tabs = allowed_tabs.get(request.user.role, [])
+#     return render(request, 'templates/users/unified_view.html', {'tabs': tabs})
 
 
 def register_view(request):
@@ -47,6 +58,10 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+def some_view(request):
+    if request.user.role != 'analyst':
+        return HttpResponseForbidden("Доступ запрещен")
 
 @login_required # edit
 def unified_feeds_view(request):
@@ -122,5 +137,12 @@ def unified_feeds_view(request):
         # IOC
         'ioc_data': ioc_data,
     }
+    allowed_tabs = {
+        'admin': ['fincert', 'mvd', 'ioc'],
+        'analyst': ['fincert', 'mvd', 'ioc'],
+        'network_admin': ['ioc'],
+    }
+    tabs = allowed_tabs.get(getattr(request.user, 'role', ''), [])
+    context['tabs'] = tabs
 
     return render(request, 'users/unified_view.html', context)

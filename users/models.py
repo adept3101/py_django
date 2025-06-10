@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 #Таблица для навигации
 class FeedsTypeNavigation(models.Model):
     feeds_name = models.CharField('Название фидов', max_length=20)
@@ -128,3 +129,36 @@ class FinCertIocDateProcessing(models.Model):
 # class IB(models.Model):
 #     class Meta:
 #         permissions =((""))
+class Role(models.Model):
+    name = models.CharField(max_length=64, unique=True)  # Название роли (например, 'admin', 'editor')
+    description = models.TextField(blank=True)  # Описание роли (опционально)
+
+class CustomUser(AbstractUser):
+    
+    ROLE_CHOICES = (
+        ('admin', 'Администратор'),
+        ('analyst', 'Аналитик'),
+        ('network_admin', 'Сетевой администратор'),
+    )
+    #role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, blank=True) # роль пользователя
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='analyst', verbose_name='Роль')
+    
+    groups = models.ManyToManyField(
+        'auth.Group',
+        verbose_name='Группы',
+        blank=True,
+        help_text='Группы, к которым принадлежит пользователь.',
+        related_name='customuser_groups',
+        related_query_name='customuser',
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        verbose_name='Права пользователя',
+        blank=True,
+        help_text='Специальные права для этого пользователя.',
+        related_name='customuser_permissions',
+        related_query_name='customuser',
+    )
+    
+    def __str__(self):
+        return self.name

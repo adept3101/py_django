@@ -1,4 +1,5 @@
 from django.contrib import admin
+from .models import Role, CustomUser
 from .models import (
     FeedsTypeNavigation,
     FeedsFinCertDateDownloads,
@@ -15,4 +16,5 @@ from .models import (
 admin.site.register(FeedsTypeNavigation)
 admin.site.register(FeedsFinCertDateDownloads)
 admin.site.register(FinCertIocDateProcessing)
-
+admin.site.register(Role)
+admin.site.register(CustomUser)
