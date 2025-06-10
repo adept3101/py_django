@@ -9,20 +9,12 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from .permissions import RolePermission
 from django.http import HttpResponseForbidden
-
-# def list(request):
-#     allowed_tabs = {
-#         'admin': ['fincert', 'mvd', 'ioc'],
-#         'analyst': ['fincert','mvd', 'ioc'],
-#         'network_admin': ['ioc'],
-#     }
-#     tabs = allowed_tabs.get(request.user.role, [])
-#     return render(request, 'templates/users/unified_view.html', {'tabs': tabs})
-
+from .forms import CustomUserCreationForm
 
 def register_view(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        #form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
             
@@ -37,6 +29,7 @@ def register_view(request):
             user.save()
             login(request, user)
             return redirect('users/login.html')
+            #return render('users/login.html')
     else:
         form = UserCreationForm()
     
@@ -59,9 +52,9 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
-def some_view(request):
-    if request.user.role != 'analyst':
-        return HttpResponseForbidden("Доступ запрещен")
+# def some_view(request):
+#     if request.user.role != 'user':
+#         return HttpResponseForbidden("Доступ запрещен")
 
 @login_required # edit
 def unified_feeds_view(request):
@@ -137,12 +130,12 @@ def unified_feeds_view(request):
         # IOC
         'ioc_data': ioc_data,
     }
-    allowed_tabs = {
-        'admin': ['fincert', 'mvd', 'ioc'],
-        'analyst': ['fincert', 'mvd', 'ioc'],
-        'network_admin': ['ioc'],
-    }
-    tabs = allowed_tabs.get(getattr(request.user, 'role', ''), [])
-    context['tabs'] = tabs
+    # allowed_tabs = {
+    #     'admin': ['fincert', 'mvd', 'ioc'],
+    #     'analyst': ['fincert', 'mvd', 'ioc'],
+    #     'network_admin': ['ioc'],
+    # }
+    # tabs = allowed_tabs.get(getattr(request.user, 'role', ''), [])
+    # context['tabs'] = tabs
 
     return render(request, 'users/unified_view.html', context)
