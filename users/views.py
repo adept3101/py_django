@@ -28,8 +28,7 @@ def register_view(request):
             
             user.save()
             login(request, user)
-            return redirect('users/login.html')
-            #return render('users/login.html')
+            return redirect('login')
     else:
         form = UserCreationForm()
     
@@ -52,12 +51,11 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
-# def some_view(request):
-#     if request.user.role != 'user':
-#         return HttpResponseForbidden("Доступ запрещен")
-
 @login_required # edit
 def unified_feeds_view(request):
+    
+    # permission_classes = [RolePermission]
+    # RolePermission.allowed_roles = ['admin', 'analyst']
     # Параметры пагинации
     items_per_page = 50
     active_tab = request.GET.get('tab', 'fincert')
@@ -130,12 +128,5 @@ def unified_feeds_view(request):
         # IOC
         'ioc_data': ioc_data,
     }
-    # allowed_tabs = {
-    #     'admin': ['fincert', 'mvd', 'ioc'],
-    #     'analyst': ['fincert', 'mvd', 'ioc'],
-    #     'network_admin': ['ioc'],
-    # }
-    # tabs = allowed_tabs.get(getattr(request.user, 'role', ''), [])
-    # context['tabs'] = tabs
 
     return render(request, 'users/unified_view.html', context)

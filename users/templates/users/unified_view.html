@@ -55,6 +55,12 @@
     {% if user.is_authenticated %}
     <p>Привет, {{ user.username }} | <a href="{% url 'logout' %}">Выйти</a></p>
     {% endif %}
+
+    {% if user.role == 'user' %}
+    <div class="container mt-4">
+        <p>Доступ закрыт ожидайте назначения роли.</p>
+    </div>
+    {% endif %}
     <div class="container mt-4">
         <h1 class="text-center mb-4">Унифицированный просмотр фидов</h1>
 

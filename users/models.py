@@ -163,3 +163,5 @@ class CustomUser(AbstractUser):
     
     def __str__(self):
         return self.name
+# hello from tty
+#printf("hello")
