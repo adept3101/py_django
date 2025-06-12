@@ -25,7 +25,8 @@ def register_view(request):
             
             user.save()
             login(request, user)
-            return redirect('users/login.html')
+            return redirect('login')
+            #return redirect('users/login.html')
     else:
         form = UserCreationForm()
     
