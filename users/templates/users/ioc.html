@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IOC - Унифицированный просмотр фидов</title>
+    <link href="{% static 'users/css/style.css' %}" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .section-title {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .table th {
+            white-space: nowrap;
+        }
+        .back-link {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <p class="text-end p-3">Привет, {{ user.username }} | <a href="{% url 'logout' %}">Выйти</a></p>
+    {% endif %}
+    
+    <div class="container mt-4">
+        <a href="index.html" class="btn btn-outline-secondary back-link">← Назад к выбору раздела</a>
+        
+        <h1 class="text-center mb-4">Данные IOC</h1>
+
+        <h3 class="section-title">Обработка IOC</h3>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Тип фида</th>
+                        <th>Дата рассылки</th>
+                        <th>Дата загрузки</th>
+                        <th>Идентификатор</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in ioc_data %}
+                    <tr>
+                        <td>{{ item.feedstype.feeds_name }}</td>
+                        <td>{{ item.dateMailing }}</td>
+                        <td>{{ item.date|default:"-" }}</td>
+                        <td>{{ item.iocTrim }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
