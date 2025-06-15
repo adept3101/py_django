@@ -70,21 +70,22 @@ class ViewMixin(View):
         return paginator.get_page(page_number)
     
 #@login_required    
-class FincertView(ViewMixin):
-    def __call__(self, request):
+class FincertView(ViewMixin, View):
+    def get(self, request):
         active_tab = request.GET.get('tab', 'fincert')
         date_filter = request.GET.get('date_filter', '')
+
         fincert_dates = FeedsFinCertDateDownloads.objects.select_related('feedstype').order_by('-date')[:10]
 
-        account_numbers = self.get_filtered_queryset(FeedsAccountNumbers)
-        card_numbers = self.get_filtered_queryset(FeedsCardNumbers)
-        ewallet_numbers = self.get_filtered_queryset(FeedsEwalletNumbers)
-        fastpay_numbers = self.get_filtered_queryset(FeedsFastpayNumbers)
-        inn_numbers = self.get_filtered_queryset(FeedsInn)
-        passport_hashes = self.get_filtered_queryset(FeedsPassportHash)
-        phone_numbers = self.get_filtered_queryset(FeedsPhoneNumbers)
-        snils_hashes = self.get_filtered_queryset(FeedsSnilsHash)
-        swift_data = self.get_filtered_queryset(FeedsSwift)
+        account_numbers = self.get_filtered_queryset(FeedsAccountNumbers,date_filter)
+        card_numbers = self.get_filtered_queryset(FeedsCardNumbers, date_filter)
+        ewallet_numbers = self.get_filtered_queryset(FeedsEwalletNumbers, date_filter)
+        fastpay_numbers = self.get_filtered_queryset(FeedsFastpayNumbers, date_filter)
+        inn_numbers = self.get_filtered_queryset(FeedsInn, date_filter)
+        passport_hashes = self.get_filtered_queryset(FeedsPassportHash, date_filter)
+        phone_numbers = self.get_filtered_queryset(FeedsPhoneNumbers, date_filter)
+        snils_hashes = self.get_filtered_queryset(FeedsSnilsHash, date_filter)
+        swift_data = self.get_filtered_queryset(FeedsSwift, date_filter)
 
         context = {
             'active_tab': active_tab,
@@ -103,18 +104,25 @@ class FincertView(ViewMixin):
         }
         return render(request, 'users/fincert.html', context)
     
-@login_required
-class MVDViews(ViewMixin):
-    def __call__(self, request):
+#@login_required
+class MVDViews(ViewMixin, View):
+    def get(self, request):
         active_tab = request.GET.get('tab', 'fincert')
         date_filter = request.GET.get('date_filter', '')
 
         mvd_dates = FeedsMvdDateDownloads.objects.all().order_by('-date')[:10]
-        mvd_accounts = self.get_filtered_queryset(FeedsMvdAccountNumbers, 'datedownloads__date')
-        mvd_cards = self.get_filtered_queryset(FeedsMvdCardNumbers, 'datedownloads__date')
-        mvd_fastpay = self.get_filtered_queryset(FeedsMvdFastPayNumbers, 'datedownloads__date')
-        mvd_inn = self.get_filtered_queryset(FeedsMvdInn, 'datedownloads__date')
-        mvd_passports = self.get_filtered_queryset(FeedsMvdPassportHash, 'datedownloads__date')
+
+        mvd_accounts = self.get_filtered_queryset(FeedsMvdAccountNumbers, date_filter, 'datedownloads__date')
+        mvd_cards = self.get_filtered_queryset(FeedsMvdCardNumbers, date_filter, 'datedownloads__date')
+        mvd_fastpay = self.get_filtered_queryset(FeedsMvdFastPayNumbers, date_filter, 'datedownloads__date')
+        mvd_inn = self.get_filtered_queryset(FeedsMvdInn, date_filter, 'datedownloads__date')
+        mvd_passports = self.get_filtered_queryset(FeedsMvdPassportHash, date_filter, 'datedownloads__date')
+        
+        # mvd_accounts = self.get_filtered_queryset(FeedsMvdAccountNumbers, date_filter)
+        # mvd_cards = self.get_filtered_queryset(FeedsMvdCardNumbers, date_filter)
+        # mvd_fastpay = self.get_filtered_queryset(FeedsMvdFastPayNumbers, date_filter)
+        # mvd_inn = self.get_filtered_queryset(FeedsMvdInn, date_filter)
+        # mvd_passports = self.get_filtered_queryset(FeedsMvdPassportHash, date_filter)
 
         context = {
             'active_tab': active_tab,
@@ -129,9 +137,9 @@ class MVDViews(ViewMixin):
         }
         return render(request, 'users/mvd.html', context)
 
-@login_required
-class IOCViews(ViewMixin):
-    def __call__(self, request):
+#@login_required
+class IOCViews(ViewMixin, View):
+    def get(self, request):
         active_tab = request.GET.get('tab', 'fincert')
         date_filter = request.GET.get('date_filter', '')
 

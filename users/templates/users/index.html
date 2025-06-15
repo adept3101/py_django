@@ -49,7 +49,7 @@
 
         <div class="row">
             <div class="col-md-4">
-                <a href="fincert.html" class="text-decoration-none"></a>
+                <a href="{% url 'fincert' %}" class="text-decoration-none">
                     <div class="card nav-card">
                         <div class="card-body">
                             <img src="{% static 'images/fincert-icon.png' %}" alt="ФинЦерт" width="80" height="80">
@@ -61,7 +61,7 @@
             </div>
             
             <div class="col-md-4">
-                <a href="mvd.html" class="text-decoration-none">
+                <a href="{% url 'mvd' %}" class="text-decoration-none">
                     <div class="card nav-card">
                         <div class="card-body">
                             <img src="{% static 'images/mvd-icon.png' %}" alt="МВД" width="80" height="80">
@@ -73,7 +73,7 @@
             </div>
             
             <div class="col-md-4">
-                <a href="ioc.html" class="text-decoration-none">
+                <a href="{% url 'ioc' %}" class="text-decoration-none">
                     <div class="card nav-card">
                         <div class="card-body">
                             <img src="{% static 'images/ioc-icon.png' %}" alt="IOC" width="80" height="80">

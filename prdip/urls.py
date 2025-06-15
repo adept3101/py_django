@@ -19,11 +19,12 @@ from django.urls import path, include
 from users import views
 
 urlpatterns = [ 
-    path('', views.page, name='main'),
+    path('main/', views.page, name='main'),
     path('admin/', admin.site.urls),
     path('auth/', include('django.contrib.auth.urls')),
     path('logout/', views.logout_view, name='logout'),
     path('register/', views.register_view, name='register'),
-    #path('fincert/',views.FincertView, name='fincert'),
-    path('fincert/', views.FincertView.as_view(), name='fincert')
+    path('fincert/', views.FincertView.as_view(), name='fincert'),
+    path('mvd/', views.MVDViews.as_view(), name='mvd'),
+    path('ioc/', views.IOCViews.as_view(), name='ioc'),
 ]
