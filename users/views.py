@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from .decorators import role_required, group_required
 from django.views import View
+from django.core.exceptions import PermissionDenied
 
 def register_view(request):
     if request.method == 'POST':
@@ -68,9 +69,19 @@ class ViewMixin(View):
         paginator = Paginator(data, items_per_page)
         page_number = request.GET.get(f'{param_name}_page')
         return paginator.get_page(page_number)
-    
+
+class GroupRequiredMixin:
+    allowed_groups = []
+
+    def dispatch(self, request, *args, **kwargs):
+        user = request.user
+        if user.is_authenticated and (user.is_superuser or user.groups.filter(name__in=self.allowed_groups).exists()):
+            return super().dispatch(request, *args, **kwargs)
+        raise PermissionDenied
+
 #@login_required    
-class FincertView(ViewMixin, View):
+class FincertView(ViewMixin, View, GroupRequiredMixin):
+    allowed_groups=['Admin', 'Analyst']
     def get(self, request):
         active_tab = request.GET.get('tab', 'fincert')
         date_filter = request.GET.get('date_filter', '')
@@ -106,6 +117,7 @@ class FincertView(ViewMixin, View):
     
 #@login_required
 class MVDViews(ViewMixin, View):
+    allowed_groups=['Admin', 'Analyst']
     def get(self, request):
         active_tab = request.GET.get('tab', 'fincert')
         date_filter = request.GET.get('date_filter', '')
@@ -118,12 +130,6 @@ class MVDViews(ViewMixin, View):
         mvd_inn = self.get_filtered_queryset(FeedsMvdInn, date_filter, 'datedownloads__date')
         mvd_passports = self.get_filtered_queryset(FeedsMvdPassportHash, date_filter, 'datedownloads__date')
         
-        # mvd_accounts = self.get_filtered_queryset(FeedsMvdAccountNumbers, date_filter)
-        # mvd_cards = self.get_filtered_queryset(FeedsMvdCardNumbers, date_filter)
-        # mvd_fastpay = self.get_filtered_queryset(FeedsMvdFastPayNumbers, date_filter)
-        # mvd_inn = self.get_filtered_queryset(FeedsMvdInn, date_filter)
-        # mvd_passports = self.get_filtered_queryset(FeedsMvdPassportHash, date_filter)
-
         context = {
             'active_tab': active_tab,
             'date_filter': date_filter,
@@ -139,6 +145,7 @@ class MVDViews(ViewMixin, View):
 
 #@login_required
 class IOCViews(ViewMixin, View):
+    allowed_groups=['Admin', 'Network Admin']
     def get(self, request):
         active_tab = request.GET.get('tab', 'fincert')
         date_filter = request.GET.get('date_filter', '')

@@ -30,10 +30,25 @@
     <p class="text-end p-3">Привет, {{ user.username }} | <a href="{% url 'logout' %}">Выйти</a></p>
     {% endif %}
     
+    
     <div class="container mt-4">
         <a href="{% url 'main' %}" class="btn btn-outline-secondary back-link">← Назад к выбору раздела</a>
         
         <h1 class="text-center mb-4">Данные IOC</h1>
+        <div class="search-container mb-4">
+            <form method="get" class="row g-3">
+                <div class="col-md-8">
+                    <label for="date_filter" class="form-label">Фильтр по дате фиксации:</label>
+                    <input type="text" class="form-control" id="date_filter" name="date_filter"
+                           value="{{ date_filter }}" placeholder="Введите дату (например, 01.01.2023 dd.mm.yyyy)">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">Применить</button>
+                    <a href="?" class="btn btn-outline-secondary">Сбросить</a>
+                </div>
+            </form>
+        </div>
+
 
         <h3 class="section-title">Обработка IOC</h3>
         <div class="table-responsive">
