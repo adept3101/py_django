@@ -3,6 +3,7 @@
 prdip/__pycache__
 users/__pycache__
 users/migrations/__pycache__
+users/templatetags/__pycache__
 
 #git rm --cached имя_файла
 #git rm -r --cached имя_папки/

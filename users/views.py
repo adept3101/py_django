@@ -39,7 +39,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('unified-feeds')
+            return redirect('main')
         else:
             messages.error(request, "Неверное имя пользователя или пароль.")
     else:
