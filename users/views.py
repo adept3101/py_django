@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from .decorators import role_required, group_required
 from django.views import View
 from django.core.exceptions import PermissionDenied
+from django.utils.decorators import method_decorator
 
 def register_view(request):
     if request.method == 'POST':
@@ -80,7 +81,7 @@ class GroupRequiredMixin:
         raise PermissionDenied
 
 #@login_required    
-class FincertView(ViewMixin, View, GroupRequiredMixin):
+class FincertView(GroupRequiredMixin, ViewMixin, View):
     allowed_groups=['Admin', 'Analyst']
     def get(self, request):
         active_tab = request.GET.get('tab', 'fincert')
@@ -116,7 +117,7 @@ class FincertView(ViewMixin, View, GroupRequiredMixin):
         return render(request, 'users/fincert.html', context)
     
 #@login_required
-class MVDViews(ViewMixin, View):
+class MVDViews(GroupRequiredMixin, ViewMixin, View):
     allowed_groups=['Admin', 'Analyst']
     def get(self, request):
         active_tab = request.GET.get('tab', 'fincert')
@@ -143,8 +144,7 @@ class MVDViews(ViewMixin, View):
         }
         return render(request, 'users/mvd.html', context)
 
-#@login_required
-class IOCViews(ViewMixin, View):
+class IOCViews(GroupRequiredMixin, ViewMixin, View):
     allowed_groups=['Admin', 'Network Admin']
     def get(self, request):
         active_tab = request.GET.get('tab', 'fincert')

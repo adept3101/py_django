@@ -1,5 +1,6 @@
 from django.contrib import admin
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import Group, Permission, User
+
 from .models import (
     FeedsTypeNavigation,
     FeedsFinCertDateDownloads,
@@ -44,3 +45,5 @@ network_admin_group, _ = Group.objects.get_or_create(name='Network Admin')
 
 user_group, _ = Group.objects.get_or_create(name='User')
 
+user = User.objects.get(username='analyst')
+user.groups.add(analyst_group)
