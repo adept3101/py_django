@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Унифицированный просмотр фидов</title>
+    <link href="{% static 'users/css/style.css' %}" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .nav-card {
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+            height: 100%;
+        }
+        .nav-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .nav-card .card-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .nav-card .card-title {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .welcome-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <p class="text-end p-3">Привет, {{ user.username }} | <a href="{% url 'logout' %}">Выйти</a></p>
+    {% endif %}
+    
+    <div class="container mt-4">
+        <div class="welcome-container">
+            <h1 class="text-center mb-4">Унифицированный просмотр фидов</h1>
+            <p class="text-center lead">Выберите раздел для просмотра данных</p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <a href="{% url 'fincert' %}" class="text-decoration-none">
+                    <div class="card nav-card">
+                        <div class="card-body">
+                            <img src="{% static 'images/fincert-icon.png' %}" alt="ФинЦерт" width="80" height="80">
+                            <h3 class="card-title mt-3">ФинЦерт</h3>
+                            <p class="card-text">Просмотр данных от ФинЦерт</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-md-4">
+                <a href="{% url 'mvd' %}" class="text-decoration-none">
+                    <div class="card nav-card">
+                        <div class="card-body">
+                            <img src="{% static 'images/mvd-icon.png' %}" alt="МВД" width="80" height="80">
+                            <h3 class="card-title mt-3">МВД</h3>
+                            <p class="card-text">Просмотр данных от МВД</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-md-4">
+                <a href="{% url 'ioc' %}" class="text-decoration-none">
+                    <div class="card nav-card">
+                        <div class="card-body">
+                            <img src="{% static 'images/ioc-icon.png' %}" alt="IOC" width="80" height="80">
+                            <h3 class="card-title mt-3">IOC</h3>
+                            <p class="card-text">Просмотр данных IOC</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

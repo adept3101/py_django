@@ -16,13 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.shortcuts import redirect
-from users import views as user_views
+from users import views
 
-urlpatterns = [
+urlpatterns = [ 
+    path('main/', views.page, name='main'),
     path('admin/', admin.site.urls),
     path('auth/', include('django.contrib.auth.urls')),
-    path('logout/', user_views.logout_view, name='logout'),
-    path('register/', user_views.register_view, name='register'),
-    path('', user_views.unified_feeds_view, name='main'),
+    path('logout/', views.logout_view, name='logout'),
+    path('register/', views.register_view, name='register'),
+    path('fincert/', views.FincertView.as_view(), name='fincert'),
+    path('mvd/', views.MVDViews.as_view(), name='mvd'),
+    path('ioc/', views.IOCViews.as_view(), name='ioc'),
 ]

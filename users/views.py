@@ -7,7 +7,9 @@ from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib import messages
 from django.contrib.auth.models import User
-
+from .decorators import role_required, group_required
+from django.views import View
+from django.core.exceptions import PermissionDenied
 
 def register_view(request):
     if request.method == 'POST':
@@ -25,7 +27,7 @@ def register_view(request):
             
             user.save()
             login(request, user)
-            return redirect('users/login.html')
+            return redirect('login')
     else:
         form = UserCreationForm()
     
@@ -48,79 +50,112 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
-@login_required # edit
-def unified_feeds_view(request):
-    # Параметры пагинации
+@login_required
+def page(request):
+    return render(request,'users/index.html')
+
+class ViewMixin(View):
     items_per_page = 50
-    active_tab = request.GET.get('tab', 'fincert')
-    # Фильтрация по дате фиксации
-    date_filter = request.GET.get('date_filter', '')
 
-    # ФинЦерт - базовые запросы
-    fincert_dates = FeedsFinCertDateDownloads.objects.select_related('feedstype').order_by('-date')[:10]
-
-    # Создаем QuerySet для каждого типа данных с фильтрацией
-    def get_filtered_queryset(model, date_field='dateFixed'):
+    @staticmethod
+    def get_filtered_queryset(model, date_filter, date_field='dateFixed'):
         queryset = model.objects.select_related('datedownloads').all()
         if date_filter:
             queryset = queryset.filter(**{f'{date_field}__icontains': date_filter})
         return queryset.order_by(f'-{date_field}')
 
-    # ФинЦерт данные
-    account_numbers = get_filtered_queryset(FeedsAccountNumbers)
-    card_numbers = get_filtered_queryset(FeedsCardNumbers)
-    ewallet_numbers = get_filtered_queryset(FeedsEwalletNumbers)
-    fastpay_numbers = get_filtered_queryset(FeedsFastpayNumbers)
-    inn_numbers = get_filtered_queryset(FeedsInn)
-    passport_hashes = get_filtered_queryset(FeedsPassportHash)
-    phone_numbers = get_filtered_queryset(FeedsPhoneNumbers)
-    snils_hashes = get_filtered_queryset(FeedsSnilsHash)
-    swift_data = get_filtered_queryset(FeedsSwift)
-
-    # МВД данные (без пагинации)
-    mvd_dates = FeedsMvdDateDownloads.objects.all().order_by('-date')[:10]
-    mvd_accounts = get_filtered_queryset(FeedsMvdAccountNumbers, 'datedownloads__date')
-    mvd_cards = get_filtered_queryset(FeedsMvdCardNumbers, 'datedownloads__date')
-    mvd_fastpay = get_filtered_queryset(FeedsMvdFastPayNumbers, 'datedownloads__date')
-    mvd_inn = get_filtered_queryset(FeedsMvdInn, 'datedownloads__date')
-    mvd_passports = get_filtered_queryset(FeedsMvdPassportHash, 'datedownloads__date')
-
-    # IOC данные
-    ioc_data = FinCertIocDateProcessing.objects.select_related('feedstype').order_by('-dateMailing')[:10]
-
-    # Пагинация только для данных ФинЦерт
-    def paginate_data(request, data, param_name):
+    @staticmethod
+    def paginate_data(request, data, param_name, items_per_page=50):
         paginator = Paginator(data, items_per_page)
         page_number = request.GET.get(f'{param_name}_page')
         return paginator.get_page(page_number)
 
-    # Контекст для шаблона
-    context = {
-        'active_tab': active_tab,
-        'date_filter': date_filter,
+class GroupRequiredMixin:
+    allowed_groups = []
 
-        # ФинЦерт (с пагинацией)
-        'fincert_dates': fincert_dates,
-        'account_numbers_page': paginate_data(request, account_numbers, 'account'),
-        'card_numbers_page': paginate_data(request, card_numbers, 'card'),
-        'ewallet_numbers_page': paginate_data(request, ewallet_numbers, 'ewallet'),
-        'fastpay_numbers_page': paginate_data(request, fastpay_numbers, 'fastpay'),
-        'inn_numbers_page': paginate_data(request, inn_numbers, 'inn'),
-        'passport_hashes_page': paginate_data(request, passport_hashes, 'passport'),
-        'phone_numbers_page': paginate_data(request, phone_numbers, 'phone'),
-        'snils_hashes_page': paginate_data(request, snils_hashes, 'snils'),
-        'swift_data_page': paginate_data(request, swift_data, 'swift'),
+    def dispatch(self, request, *args, **kwargs):
+        user = request.user
+        if user.is_authenticated and (user.is_superuser or user.groups.filter(name__in=self.allowed_groups).exists()):
+            return super().dispatch(request, *args, **kwargs)
+        raise PermissionDenied
 
-        # МВД (без пагинации)
-        'mvd_dates': mvd_dates,
-        'mvd_accounts': mvd_accounts,
-        'mvd_cards': mvd_cards,
-        'mvd_fastpay': mvd_fastpay,
-        'mvd_inn': mvd_inn,
-        'mvd_passports': mvd_passports,
+#@login_required    
+class FincertView(ViewMixin, View, GroupRequiredMixin):
+    allowed_groups=['Admin', 'Analyst']
+    def get(self, request):
+        active_tab = request.GET.get('tab', 'fincert')
+        date_filter = request.GET.get('date_filter', '')
 
-        # IOC
-        'ioc_data': ioc_data,
-    }
+        fincert_dates = FeedsFinCertDateDownloads.objects.select_related('feedstype').order_by('-date')[:10]
 
-    return render(request, 'users/unified_view.html', context)
+        account_numbers = self.get_filtered_queryset(FeedsAccountNumbers,date_filter)
+        card_numbers = self.get_filtered_queryset(FeedsCardNumbers, date_filter)
+        ewallet_numbers = self.get_filtered_queryset(FeedsEwalletNumbers, date_filter)
+        fastpay_numbers = self.get_filtered_queryset(FeedsFastpayNumbers, date_filter)
+        inn_numbers = self.get_filtered_queryset(FeedsInn, date_filter)
+        passport_hashes = self.get_filtered_queryset(FeedsPassportHash, date_filter)
+        phone_numbers = self.get_filtered_queryset(FeedsPhoneNumbers, date_filter)
+        snils_hashes = self.get_filtered_queryset(FeedsSnilsHash, date_filter)
+        swift_data = self.get_filtered_queryset(FeedsSwift, date_filter)
+
+        context = {
+            'active_tab': active_tab,
+            'date_filter': date_filter,
+
+            'fincert_dates': fincert_dates,
+            'account_numbers_page': self.paginate_data(request, account_numbers, 'account'),
+            'card_numbers_page': self.paginate_data(request, card_numbers, 'card'),
+            'ewallet_numbers_page': self.paginate_data(request, ewallet_numbers, 'ewallet'),
+            'fastpay_numbers_page': self.paginate_data(request, fastpay_numbers, 'fastpay'),
+            'inn_numbers_page': self.paginate_data(request, inn_numbers, 'inn'),
+            'passport_hashes_page': self.paginate_data(request, passport_hashes, 'passport'),
+            'phone_numbers_page': self.paginate_data(request, phone_numbers, 'phone'),
+            'snils_hashes_page': self.paginate_data(request, snils_hashes, 'snils'),
+            'swift_data_page': self.paginate_data(request, swift_data, 'swift'),
+        }
+        return render(request, 'users/fincert.html', context)
+    
+#@login_required
+class MVDViews(ViewMixin, View):
+    allowed_groups=['Admin', 'Analyst']
+    def get(self, request):
+        active_tab = request.GET.get('tab', 'fincert')
+        date_filter = request.GET.get('date_filter', '')
+
+        mvd_dates = FeedsMvdDateDownloads.objects.all().order_by('-date')[:10]
+
+        mvd_accounts = self.get_filtered_queryset(FeedsMvdAccountNumbers, date_filter, 'datedownloads__date')
+        mvd_cards = self.get_filtered_queryset(FeedsMvdCardNumbers, date_filter, 'datedownloads__date')
+        mvd_fastpay = self.get_filtered_queryset(FeedsMvdFastPayNumbers, date_filter, 'datedownloads__date')
+        mvd_inn = self.get_filtered_queryset(FeedsMvdInn, date_filter, 'datedownloads__date')
+        mvd_passports = self.get_filtered_queryset(FeedsMvdPassportHash, date_filter, 'datedownloads__date')
+        
+        context = {
+            'active_tab': active_tab,
+            'date_filter': date_filter,
+
+            'mvd_dates': mvd_dates,
+            'mvd_accounts': mvd_accounts,
+            'mvd_cards': mvd_cards,
+            'mvd_fastpay': mvd_fastpay,
+            'mvd_inn': mvd_inn,
+            'mvd_passports': mvd_passports,
+        }
+        return render(request, 'users/mvd.html', context)
+
+#@login_required
+class IOCViews(ViewMixin, View):
+    allowed_groups=['Admin', 'Network Admin']
+    def get(self, request):
+        active_tab = request.GET.get('tab', 'fincert')
+        date_filter = request.GET.get('date_filter', '')
+
+        ioc_data = FinCertIocDateProcessing.objects.select_related('feedstype').order_by('-dateMailing')[:10]
+
+        context = {
+            'active_tab': active_tab,
+            'date_filter': date_filter,
+
+            'ioc_data': ioc_data,
+        }
+        return render(request, 'users/ioc.html', context)

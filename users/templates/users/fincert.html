@@ -1,0 +1,440 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ФинЦерт - Унифицированный просмотр фидов</title>
+    <link href="{% static 'users/css/style.css' %}" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .tab-content {
+            padding: 20px;
+            border-left: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+            border-radius: 0 0 5px 5px;
+        }
+        .nav-tabs .nav-link.active {
+            font-weight: bold;
+        }
+        .data-table {
+            margin-top: 20px;
+        }
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .section-title {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        .search-container {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .pagination-container {
+            margin-top: 20px;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .table th {
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            background: white;
+        }
+        .back-link {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <p class="text-end p-3">Привет, {{ user.username }} | <a href="{% url 'logout' %}">Выйти</a></p>
+    {% endif %}
+    
+    <div class="container mt-4">
+        <a href="{% url 'main' %}" class="btn btn-outline-secondary back-link">← Назад к выбору раздела</a>
+        
+        <h1 class="text-center mb-4">Данные ФинЦерт</h1>
+
+        <!-- Форма поиска по дате фиксации -->
+        <div class="search-container mb-4">
+            <form method="get" class="row g-3">
+                <div class="col-md-8">
+                    <label for="date_filter" class="form-label">Фильтр по дате фиксации:</label>
+                    <input type="text" class="form-control" id="date_filter" name="date_filter"
+                           value="{{ date_filter }}" placeholder="Введите дату (например, 01.01.2023 dd.mm.yyyy)">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">Применить</button>
+                    <a href="?" class="btn btn-outline-secondary">Сбросить</a>
+                </div>
+            </form>
+        </div>
+
+        <h3 class="section-title">Последние загрузки ФинЦерт</h3>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Тип фида</th>
+                        <th>Дата загрузки</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for date in fincert_dates %}
+                    <tr>
+                        <td>{{ date.feedstype.feeds_name }}</td>
+                        <td>{{ date.date }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Внутренние табы для типов данных ФинЦерт -->
+        <ul class="nav nav-tabs mt-4" id="fincertDataTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="accounts-tab" data-bs-toggle="tab" data-bs-target="#accounts" type="button">Счета</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="cards-tab" data-bs-toggle="tab" data-bs-target="#cards" type="button">Карты</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="ewallets-tab" data-bs-toggle="tab" data-bs-target="#ewallets" type="button">Электронные кошельки</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="fastpay-tab" data-bs-toggle="tab" data-bs-target="#fastpay" type="button">FastPay</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="inn-tab" data-bs-toggle="tab" data-bs-target="#inn" type="button">ИНН</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="passport-tab" data-bs-toggle="tab" data-bs-target="#passport" type="button">Паспорта</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="phone-tab" data-bs-toggle="tab" data-bs-target="#phone" type="button">Телефоны</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="snils-tab" data-bs-toggle="tab" data-bs-target="#snils" type="button">СНИЛС</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="swift-tab" data-bs-toggle="tab" data-bs-target="#swift" type="button">SWIFT</button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Таб с номерами счетов -->
+            <div class="tab-pane fade show active" id="accounts" role="tabpanel">
+                <h4 class="mt-3">Номера счетов</h4>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Номер счета</th>
+                                <th>БИК</th>
+                                <th>Дата фиксации</th>
+                                <th>Количество</th>
+                                <th>Страна</th>
+                                <th>Дата исключения</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in account_numbers_page %}
+                            <tr>
+                                <td>{{ item.accountNumbers }}</td>
+                                <td>{{ item.bic }}</td>
+                                <td>{{ item.dateFixed }}</td>
+                                <td>{{ item.count }}</td>
+                                <td>{{ item.country }}</td>
+                                <td>{{ item.dateExcluded|default:"-" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% include 'feeds/pagination.html' with page_obj=account_numbers_page param_name='account_page' active_tab='accounts' %}
+            </div>
+
+            <!-- Остальные табы по аналогии -->
+            <!-- Таб с номерами карт -->
+            <div class="tab-pane fade" id="cards" role="tabpanel">
+                <h4 class="mt-3">Номера карт</h4>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Номер карты</th>
+                                <th>Дата фиксации</th>
+                                <th>Количество</th>
+                                <th>Страна</th>
+                                <th>Дата исключения</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in card_numbers_page %}
+                            <tr>
+                                <td>{{ item.cardNumbers }}</td>
+                                <td>{{ item.dateFixed }}</td>
+                                <td>{{ item.count }}</td>
+                                <td>{{ item.country }}</td>
+                                <td>{{ item.dateExcluded|default:"-" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% include 'feeds/pagination.html' with page_obj=card_numbers_page param_name='card_page' active_tab='card' %}
+            </div>
+
+            <!-- Таб с электронными кошельками -->
+            <div class="tab-pane fade" id="ewallets" role="tabpanel">
+                <h4 class="mt-3">Электронные кошельки</h4>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Номер кошелька</th>
+                                <th>Платежная система</th>
+                                <th>Дата фиксации</th>
+                                <th>Количество</th>
+                                <th>Страна</th>
+                                <th>Дата исключения</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in ewallet_numbers_page %}
+                            <tr>
+                                <td>{{ item.ewalletNumbers }}</td>
+                                <td>{{ item.paymentSystem }}</td>
+                                <td>{{ item.dateFixed }}</td>
+                                <td>{{ item.count }}</td>
+                                <td>{{ item.country }}</td>
+                                <td>{{ item.dateExcluded|default:"-" }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% include 'feeds/pagination.html' with page_obj=ewallet_numbers_page param_name='ewallet_page' active_tab='ewallet' %}
+            </div>
+        
+             <div class="tab-pane fade" id="fastpay" role="tabpanel">
+                <h4 class="mt-3">Fast Pay</h4>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Номер телефона</th>
+                                <th>Дата фиксации</th>
+                                <th>Количество</th>
+                                <th>Страна</th>
+                                <th>Дата исключения</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in fastpay_numbers_page %}
+                            <tr>
+                                <td>{{ item.fastpayNumber }}</td>
+                                <td>{{ item.dateFixed }}</td>
+                                <td>{{ item.count }}</td>
+                                <td>{{ item.country }}</td>
+                                <td>{{ item.dateExcluded|default:"-" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% include 'feeds/pagination.html' with page_obj=fastpay_numbers_page param_name='fastpay_page' active_tab='fastpay' %}
+            </div>
+
+            <div class="tab-pane fade" id="inn" role="tabpanel">
+                <h4 class="mt-3">ИНН</h4>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>ИНН</th>
+                                <th>Дата фиксации</th>
+                                <th>Количество</th>
+                                <th>Страна</th>
+                                <th>Дата исключения</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in inn_numbers_page %}
+                            <tr>
+                                <td>{{ item.inn }}</td>
+                                <td>{{ item.dateFixed }}</td>
+                                <td>{{ item.count }}</td>
+                                <td>{{ item.country }}</td>
+                                <td>{{ item.dateExcluded|default:"-" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                     </table>
+                </div>
+                {% include 'feeds/pagination.html' with page_obj=inn_numbers_page param_name='inn_numbers_page' active_tab='inn' %}
+            </div>
+
+            <div class="tab-pane fade" id="passport" role="tabpanel">
+                <h4 class="mt-3">Хэш паспортов</h4>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Хэш паспорта</th>
+                                <th>Дата фиксации</th>
+                                <th>Количество</th>
+                                <th>Страна</th>
+                                <th>Дата исключения</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in passport_hashes_page %}
+                            <tr>
+                                <td>{{ item.passportHash }}</td>
+                                <td>{{ item.dateFixed }}</td>
+                                <td>{{ item.count }}</td>
+                                <td>{{ item.country }}</td>
+                                <td>{{ item.dateExcluded|default:"-" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% include 'feeds/pagination.html' with page_obj=passport_hashes_page param_name='passport_hashes_page' active_tab='passport' %}
+            </div>
+
+
+                <div class="tab-pane fade" id="phone" role="tabpanel">
+                        <h4 class="mt-3">Номера телефона</h4>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Номер телефона</th>
+                                        <th>Дата фиксации</th>
+                                        <th>Количество</th>
+                                        <th>Страна</th>
+                                        <th>Дата исключения</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in phone_numbers_page %}
+                                    <tr>
+                                        <td>{{ item.phoneNumbers }}</td>
+                                        <td>{{ item.dateFixed }}</td>
+                                        <td>{{ item.count }}</td>
+                                        <td>{{ item.country }}</td>
+                                        <td>{{ item.dateExcluded|default:"-" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% include 'feeds/pagination.html' with page_obj=phone_numbers_page param_name='phone_numbers_page' active_tab='phone' %}
+                    </div>
+
+
+
+                <div class="tab-pane fade" id="snils" role="tabpanel">
+                        <h4 class="mt-3">Хэш СНИЛС</h4>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Хэш СНИЛС</th>
+                                        <th>Дата фиксации</th>
+                                        <th>Количество</th>
+                                        <th>Страна</th>
+                                        <th>Дата исключения</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in snils_hashes_page %}
+                                    <tr>
+                                        <td>{{ item.hashSnils }}</td>
+                                        <td>{{ item.dateFixed }}</td>
+                                        <td>{{ item.count }}</td>
+                                        <td>{{ item.country }}</td>
+                                        <td>{{ item.dateExcluded|default:"-" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% include 'feeds/pagination.html' with page_obj=snils_hashes_page param_name='snils_hashes_page' active_tab='snils' %}
+                    </div>
+
+
+                <div class="tab-pane fade" id="swift" role="tabpanel">
+                        <h4 class="mt-3">SWIFT</h4>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Номер счета</th>
+                                        <th>SWIFT БИК</th>
+                                        <th>Дата фиксации</th>
+                                        <th>Количество</th>
+                                        <th>Страна</th>
+                                        <th>Дата исключения</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in swift_data_page %}
+                                    <tr>
+                                        <td>{{ item.accountNumbersSwift }}</td>
+                                        <td>{{ item.swiftBIC }}</td>
+                                        <td>{{ item.dateFixed }}</td>
+                                        <td>{{ item.count }}</td>
+                                        <td>{{ item.country }}</td>
+                                        <td>{{ item.dateExcluded|default:"-" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% include 'feeds/pagination.html' with page_obj=swift_data_page param_name='swift_data_page' active_tab='swift' %}
+                    </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const activeTab = urlParams.get('tab');
+
+            if (activeTab) {
+                const tabElement = document.getElementById(activeTab + '-tab');
+                if (tabElement) {
+                    new bootstrap.Tab(tabElement).show();
+                }
+            }
+
+            const tabLinks = document.querySelectorAll('[data-bs-toggle="tab"]');
+            tabLinks.forEach(function(tabLink) {
+                tabLink.addEventListener('click', function(e) {
+                    const tabId = e.target.getAttribute('id').replace('-tab', '');
+                    updateUrlParameter('tab', tabId);
+                });
+            });
+
+            function updateUrlParameter(key, value) {
+                const url = new URL(window.location);
+                url.searchParams.set(key, value);
+                window.history.pushState({}, '', url);
+            }
+        });
+    </script>
+</body>
+</html>

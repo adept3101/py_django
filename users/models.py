@@ -125,6 +125,6 @@ class FinCertIocDateProcessing(models.Model):
     date = models.CharField('Время скачивания фидов',max_length=30, null=True, blank=True)
     iocTrim = models.CharField('Индентификатор IOC',max_length=50)
     
-# class IB(models.Model):
-#     class Meta:
-#         permissions =((""))
+# class Role(models.Model):
+#     name = models.CharField(max_length=64, unique=True)
+#     description = models.TextField(blank=True)
