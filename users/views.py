@@ -80,7 +80,6 @@ class GroupRequiredMixin:
             return super().dispatch(request, *args, **kwargs)
         raise PermissionDenied
 
-#@login_required    
 class FincertView(GroupRequiredMixin, ViewMixin, View):
     allowed_groups=['Admin', 'Analyst']
     def get(self, request):
@@ -116,7 +115,16 @@ class FincertView(GroupRequiredMixin, ViewMixin, View):
         }
         return render(request, 'users/fincert.html', context)
     
-#@login_required
+    # def post(self, request):
+    #     if 'delete' in request.POST:
+    #         selected_items = request.POST.getlist('selected_items')
+    #         if selected_items:
+    #             FeedsAccountNumbers.objects.filter(id__in=selected_items).delete()
+    #             messages.success(request, "Выбранные записи успешно удалены.")
+    #         else:
+    #             messages.warning(request, "Не выбрано ни одной записи для удаления.")
+    #     return redirect('fincert')
+    
 class MVDViews(GroupRequiredMixin, ViewMixin, View):
     allowed_groups=['Admin', 'Analyst']
     def get(self, request):
@@ -159,3 +167,16 @@ class IOCViews(GroupRequiredMixin, ViewMixin, View):
             'ioc_data': ioc_data,
         }
         return render(request, 'users/ioc.html', context)
+    
+@login_required
+@group_required(['Admin', 'Analyst'])
+def delete_accounts(request):
+    if request.method == 'POST':
+        selected_items = request.POST.getlist('selected_items')
+        if selected_items:
+            FeedsAccountNumbers.objects.filter(id__in=selected_items).delete()
+            messages.success(request, "Выбранные записи успешно удалены.")
+        else:
+            messages.warning(request, "Не выбрано ни одной записи для удаления.")
+    
+    return redirect('fincert')
