@@ -11,6 +11,7 @@ from .decorators import role_required, group_required
 from django.views import View
 from django.core.exceptions import PermissionDenied
 from django.utils.decorators import method_decorator
+from django.urls import reverse
 
 def register_view(request):
     if request.method == 'POST':
@@ -168,15 +169,51 @@ class IOCViews(GroupRequiredMixin, ViewMixin, View):
         }
         return render(request, 'users/ioc.html', context)
     
-@login_required
-@group_required(['Admin', 'Analyst'])
-def delete_accounts(request):
+#@login_required
+#@group_required(['Admin', 'Analyst'])
+def delete(request, model_name):
+    MODEL_MAPPING = {
+        'accounts': FeedsAccountNumbers,
+        'cards': FeedsCardNumbers,
+        'ewallets': FeedsEwalletNumbers,
+        'fastpay': FeedsFastpayNumbers,
+        'inn': FeedsInn,
+        'passport': FeedsPassportHash,
+        'phone': FeedsPhoneNumbers,
+        'snils': FeedsSnilsHash,
+        'swift': FeedsSwift,
+    }
+    if request.method == 'POST' and model_name in MODEL_MAPPING:
+        selected_ids = request.POST.getlist('selected_items')
+        if selected_ids:
+            MODEL_MAPPING[model_name].objects.filter(id__in=selected_ids).delete()
+            
+    #return redirect('fincert')
+    return redirect(request.META.get('HTTP_REFERER', reverse('fincert')))
+
+def create(request):
+    return
+
+def create(request, model_type):
     if request.method == 'POST':
-        selected_items = request.POST.getlist('selected_items')
-        if selected_items:
-            FeedsAccountNumbers.objects.filter(id__in=selected_items).delete()
-            messages.success(request, "Выбранные записи успешно удалены.")
-        else:
-            messages.warning(request, "Не выбрано ни одной записи для удаления.")
-    
-    return redirect('fincert')
+        if model_type == 'accounts':
+            account_number = request.POST.get('accountNumbers')
+            bic = request.POST.get('bic')
+            dateFixed = request.POST.get('dateFixed')
+            count = request.POST.get('count')
+            country = request.POST.get('country')
+
+            try:
+                FeedsAccountNumbers.objects.create(
+                    accountNumbers=account_number,
+                    bic=bic,
+                    dateFixed=dateFixed,
+                    count=count,
+                    country=country
+                )
+                return redirect('')
+            except Exception as e:
+                messages.error(request, f'Ошибка при добавлении: {e}')
+                return redirect('')
+
+    return redirect('')

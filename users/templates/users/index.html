@@ -38,7 +38,7 @@
 </head>
 <body>
     {% if user.is_authenticated %}
-    <p class="text-end p-3">Привет, {{ user.username }} | <a href="{% url 'logout' %}">Выйти</a></p>
+    <p class="text-end p-3">{{ user.username }} | <a href="{% url 'logout' %}">Выйти</a></p>
     {% endif %}
     
     <div class="container mt-4">

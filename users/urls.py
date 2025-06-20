@@ -10,5 +10,6 @@ urlpatterns = [
     path('fincert/', views.FincertView.as_view(template_name='users/fincert.html'), name='fincert'),
     path('mvd/', views.MVDViews.as_view(template_name='users/mvd.html'), name='mvd'),
     path('ioc/', views.IOCViews.as_view(template_name='users/ioc.html'), name='ioc'),
-    path('delete_accounts/', views.delete_accounts, name='delete_accounts'),
+    path('delete/<str:model_name>/', views.delete, name='delete'),
+    path('create/<str:model_name>/', views.create, name='create'),
 ]
