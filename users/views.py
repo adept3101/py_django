@@ -191,29 +191,51 @@ def delete(request, model_name):
     #return redirect('fincert')
     return redirect(request.META.get('HTTP_REFERER', reverse('fincert')))
 
+# def create(request, model_type):
+#     if request.method == 'POST':
+#         if model_type == 'accounts':
+#             account_number = request.POST.get('accountNumbers')
+#             bic = request.POST.get('bic')
+#             dateFixed = request.POST.get('dateFixed')
+#             count = request.POST.get('count')
+#             country = request.POST.get('country')
+
+#             try:
+#                 FeedsAccountNumbers.objects.create(
+#                     accountNumbers=account_number,
+#                     bic=bic,
+#                     dateFixed=dateFixed,
+#                     count=count,
+#                     country=country
+#                 )
+#                 return redirect('')
+#             except Exception as e:
+#                 messages.error(request, f'Ошибка при добавлении: {e}')
+#                 return redirect('')
+
+#     return redirect('')
+
 def create(request):
-    return
-
-def create(request, model_type):
+    
     if request.method == 'POST':
-        if model_type == 'accounts':
-            account_number = request.POST.get('accountNumbers')
-            bic = request.POST.get('bic')
-            dateFixed = request.POST.get('dateFixed')
-            count = request.POST.get('count')
-            country = request.POST.get('country')
-
-            try:
-                FeedsAccountNumbers.objects.create(
-                    accountNumbers=account_number,
-                    bic=bic,
-                    dateFixed=dateFixed,
-                    count=count,
-                    country=country
-                )
-                return redirect('')
-            except Exception as e:
+        account_number = request.POST.get('accountNumbers')
+        bic = request.POST.get('bic')
+        dateFixed = request.POST.get('dateFixed')
+        count = request.POST.get('count')
+        country = request.POST.get('country')
+        
+        try:
+            FeedsAccountNumbers.objects.create(
+                accountNumbers=account_number,
+                bic=bic,
+                dateFixed=dateFixed,
+                count=count,
+                country=country
+            )
+            return redirect('')
+        
+        except Exception as e:
                 messages.error(request, f'Ошибка при добавлении: {e}')
-                return redirect('')
-
-    return redirect('')
+                return redirect('fincert')
+            
+    return redirect('fincert')

@@ -12,4 +12,5 @@ urlpatterns = [
     path('ioc/', views.IOCViews.as_view(template_name='users/ioc.html'), name='ioc'),
     path('delete/<str:model_name>/', views.delete, name='delete'),
     path('create/<str:model_name>/', views.create, name='create'),
+    path('create/', views.create, name='create'),
 ]
